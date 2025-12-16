@@ -1,0 +1,24 @@
+services:
+  zero123plus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sd-zero123plus:latest
+    container_name: sd-zero123plus
+    volumes:
+      - ./models:/app/models:ro
+      - ./input:/app/input:ro
+      - ./output:/app/output
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    shm_size: '4g'
+    tty: true
+    stdin_open: true
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - PYTHONUNBUFFERED=1
