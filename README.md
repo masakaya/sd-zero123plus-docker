@@ -8,7 +8,7 @@ Docker environment for Zero123++ to generate consistent multi-view images (6 vie
 - **Output**: 6 multi-view images (3x2 grid)
 - **Camera angles**: Fixed 6 directions (elevation 30°, azimuth 30°/90°/150°/210°/270°/330°)
 - **VRAM**: ~5GB (lightweight)
-- **Interface**: Gradio WebUI
+- **Interface**: CLI
 
 ## Quick Start
 
@@ -18,11 +18,10 @@ make setup
 make download-models
 make build
 
-# Start container and WebUI
-make up
-make start
+# Run inference
+make run INPUT=input/your_image.png
 
-# Access WebUI at http://localhost:7860
+# Output will be saved to output/your_image_mv.png
 ```
 
 ## Requirements
@@ -68,26 +67,22 @@ make build
 
 ## Usage
 
-### Start Gradio WebUI
+### Run Inference
 
 ```bash
-# Start container
-make up
+# Basic usage
+make run INPUT=input/your_image.png
 
-# Start WebUI
-make start
+# With custom steps (default: 75)
+docker compose run --rm zero123plus \
+    python /app/scripts/infer.py --input /app/input/your_image.png --steps 100
 ```
 
-Access at **http://localhost:7860**
+### Parameters
 
-### WebUI Features
-
-1. Upload image
-2. Adjust parameters:
-   - **Inference Steps**: 50-100 (higher = better quality)
-   - **Guidance Scale**: default 4.0
-3. Click "Generate" to create 6-view image
-4. Download the result (3x2 grid)
+- **--input, -i**: Input image path (required)
+- **--output, -o**: Output directory (default: /app/output)
+- **--steps**: Number of inference steps (default: 75, recommended: 50-100)
 
 ### Output format
 
@@ -110,7 +105,7 @@ Generated images are 3x2 grids containing 6 views:
 | `make download-models` | Download model from HuggingFace |
 | `make build` | Build Docker image |
 | `make up` | Start container (background) |
-| `make start` | Start Gradio WebUI |
+| `make run INPUT=path` | Run inference on specified image |
 | `make down` | Stop container |
 | `make shell` | Open shell in container |
 | `make logs` | Show container logs |
@@ -144,15 +139,23 @@ sd-zero123plus-docker/
 
 ### CUDA out of memory
 
-Reduce inference steps in the WebUI (try 50 instead of 75).
+Reduce inference steps (try 50 instead of 75):
+```bash
+docker compose run --rm zero123plus \
+    python /app/scripts/infer.py --input /app/input/image.png --steps 50
+```
 
 ### Low output quality
 
-Increase inference steps (recommended 100 for anime/illustration).
+Increase inference steps (recommended 100 for anime/illustration):
+```bash
+docker compose run --rm zero123plus \
+    python /app/scripts/infer.py --input /app/input/image.png --steps 100
+```
 
-### WebUI not accessible
+### Container not running
 
-Check if the container is running:
+Check container status:
 ```bash
 docker compose ps
 make logs
